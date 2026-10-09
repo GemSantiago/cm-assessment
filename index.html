@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Management Assessment — IBM Consulting FutureNow</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    background: #f4f4f4;
+    color: #1f2328;
+    min-height: 100vh;
+  }
+  .wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  /* Header */
+  .header {
+    background: #001141;
+    color: #fff;
+    padding: 28px 32px 22px;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: 0;
+  }
+  .header h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.3px; }
+  .header p  { font-size: 13px; color: #a6c8ff; margin-top: 4px; }
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 32px;
+  }
+
+  /* Start screen */
+  #screen-start .intro-text { color: #57606a; margin-bottom: 24px; font-size: 14px; }
+  .field-label { font-weight: 600; font-size: 13px; margin-bottom: 6px; display: block; }
+  .text-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #c9d1d9;
+    border-radius: 4px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #1f2328;
+    transition: border-color 0.15s;
+  }
+  .text-input:focus { outline: none; border-color: #3b82d4; }
+  .btn {
+    display: inline-block;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-primary { background: #0f62fe; color: #fff; }
+  .btn-primary:hover { background: #0353e9; }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-secondary { background: #e5e7eb; color: #1f2328; }
+  .btn-secondary:hover { background: #d0d7de; }
+  .btn-retake { background: #001141; color: #fff; margin-top: 24px; }
+  .btn-retake:hover { background: #0f2d6e; }
+  .mt-20 { margin-top: 20px; }
+  .error-msg { color: #da1e28; font-size: 13px; margin-top: 6px; display: none; }
+
+  /* Quiz screen */
+  .quiz-meta { font-size: 13px; color: #57606a; margin-bottom: 20px; }
+  .progress-bar-wrap { background: #e5e7eb; border-radius: 4px; height: 6px; margin-bottom: 28px; }
+  .progress-bar-fill { background: #0f62fe; height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .question-block { margin-bottom: 30px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px 22px; background: #fafafa; }
+  .question-num { font-size: 11px; font-weight: 700; color: #57606a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .question-text { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #1f2328; }
+  .choices label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .choices label:hover { border-color: #0f62fe; background: #f0f6ff; }
+  .choices input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: #0f62fe; }
+  .fitb-input {
+    width: 100%;
+    max-width: 420px;
+    padding: 9px 12px;
+    border: 1.5px solid #c9d1d9;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1f2328;
+  }
+  .fitb-input:focus { outline: none; border-color: #3b82d4; }
+  .submit-row { margin-top: 10px; }
+  .unanswered-msg { color: #da1e28; font-size: 13px; margin-left: 14px; display: none; }
+
+  /* Results screen */
+  .score-banner {
+    padding: 22px 24px;
+    border-radius: 6px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .score-banner.passed { background: #defbe6; border: 1.5px solid #24a148; }
+  .score-banner.failed { background: #fff1f1; border: 1.5px solid #da1e28; }
+  .score-label { font-size: 22px; font-weight: 700; }
+  .score-banner.passed .score-label { color: #0e6027; }
+  .score-banner.failed .score-label { color: #a2191f; }
+  .score-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .score-banner.passed .score-badge { background: #24a148; color: #fff; }
+  .score-banner.failed .score-badge { background: #da1e28; color: #fff; }
+  .learner-name { font-size: 14px; color: #57606a; margin-bottom: 4px; }
+
+  .result-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    background: #fafafa;
+  }
+  .result-item.incorrect {
+    border-color: #da1e28;
+    background: #fff8f8;
+  }
+  .result-q-num { font-size: 11px; font-weight: 700; color: #57606a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .result-q-num .wrong-tag {
+    display: inline-block;
+    margin-left: 8px;
+    background: #da1e28;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.4px;
+    vertical-align: middle;
+  }
+  .result-q-text { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .result-answer { font-size: 13px; color: #1f2328; background: #f0f6ff; border: 1px solid #d0e2ff; padding: 7px 12px; border-radius: 4px; display: inline-block; }
+  .result-item.incorrect .result-answer { background: #fff1f1; border-color: #ffb3b8; color: #a2191f; }
+  .result-answer-label { font-size: 12px; color: #57606a; margin-bottom: 4px; }
+  .divider { height: 1px; background: #e5e7eb; margin: 28px 0; }
+
+  footer { text-align: center; font-size: 12px; color: #57606a; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>Change Management Assessment</h1>
+    <p>IBM Consulting FutureNow Center Philippines &nbsp;·&nbsp; Quality Management System Team</p>
+  </div>
+  <div class="card">
+
+    <!-- ===== SCREEN: START ===== -->
+    <div id="screen-start">
+      <p class="intro-text">
+        This assessment covers the IBM Consulting FutureNow Center Philippines Change Management Policy and Process.
+        A score of <strong>9 out of 10 (85%)</strong> or higher is required to pass.
+        You may retake the assessment as many times as needed.
+      </p>
+      <label class="field-label" for="learner-name">Your Full Name</label>
+      <input class="text-input" type="text" id="learner-name" placeholder="Enter your full name" autocomplete="off">
+      <div class="error-msg" id="name-error">Please enter your name before starting.</div>
+      <div class="mt-20">
+        <button class="btn btn-primary" id="btn-start" onclick="startAssessment()">Start Assessment</button>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN: QUIZ ===== -->
+    <div id="screen-quiz" style="display:none;">
+      <div class="quiz-meta" id="quiz-meta"></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+      <form id="quiz-form" onsubmit="event.preventDefault(); submitQuiz();">
+        <div id="questions-container"></div>
+      </form>
+      <div class="submit-row">
+        <button type="button" class="btn btn-primary" onclick="submitQuiz()">Submit Assessment</button>
+        <span class="unanswered-msg" id="unanswered-msg">Please answer all questions before submitting.</span>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN: RESULTS ===== -->
+    <div id="screen-results" style="display:none;">
+      <div id="results-banner"></div>
+      <div class="divider"></div>
+      <h2 style="font-size:16px;font-weight:700;margin-bottom:16px;">Your Answers</h2>
+      <div id="results-questions"></div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-retake" onclick="retake()">&#8635; Retake Assessment</button>
+      </div>
+    </div>
+
+  </div><!-- .card -->
+  <footer>Made with IBM Bob</footer>
+</div><!-- .wrapper -->
+
+<script>
+// ============================================================
+// QUESTION POOL — 15 questions grounded in source materials
+// Types: mc = multiple-choice, tf = true/false, fitb = fill-in-the-blank, sc = scenario/situational
+// ============================================================
+const POOL = [
+
+  // ---- Q1 — Core Change Management Tool (MC) — Slide 8–9, Policy §5 ----
+  {
+    id: 1,
+    type: "mc",
+    text: "Which tool is the center-recommended repository used for recording, controlling, and monitoring major work scope and process changes in IBM Consulting, FNC Philippines?",
+    choices: [
+      { text: "QMX", correct: false },
+      { text: "MDC Percolator", correct: true },
+      { text: "Digital Controls Center (monday.com)", correct: false },
+      { text: "Cobee Lite", correct: false }
+    ]
+  },
+
+  // ---- Q2 — PCR Definition (MC) — Slide 12–13, Policy §8 ----
+  {
+    id: 2,
+    type: "mc",
+    text: "What does the acronym \"PCR\" stand for in the Change Management process?",
+    choices: [
+      { text: "Project Control Review", correct: false },
+      { text: "Process Change Request", correct: true },
+      { text: "Process Compliance Reform", correct: false },
+      { text: "Pre-Creation Record", correct: false }
+    ]
+  },
+
+  // ---- Q3 — Initiation of Changes (TF) — Slide 10–11, Policy §3 ----
+  {
+    id: 3,
+    type: "tf",
+    text: "True or False: Work scope and process changes can only be initiated or requested by the client.",
+    correct: false
+  },
+
+  // ---- Q4 — Major Change Classification (MC) — Slide 6–7, 14–15, Policy §3.1, §3.2 ----
+  {
+    id: 4,
+    type: "mc",
+    text: "Which of the following is considered a Major Change that is required to be logged in the MDC Percolator?",
+    choices: [
+      { text: "Updating a hyperlink or correcting text in a Desktop Procedure (DTP)", correct: false },
+      { text: "Fulfilling an ad-hoc, one-time non-recurring reporting request", correct: false },
+      { text: "Process automation / process re-engineering resulting from continuous improvement", correct: true },
+      { text: "Attaching a refreshed presentation template to an email", correct: false }
+    ]
+  },
+
+  // ---- Q5 — Risks of Uncontrolled Changes (MC) — Slide 5, Policy §4 ----
+  {
+    id: 5,
+    type: "mc",
+    text: "According to the Change Management Policy, which of the following is a key risk of implementing work scope changes without proper documentation and approval?",
+    choices: [
+      { text: "IBM takes the risk of not being paid for work performed", correct: false },
+      { text: "No protection of our intellectual property and no limitation on our liabilities", correct: false },
+      { text: "Potential mismatch of IBM and customer expectations leading to disputes and low customer satisfaction", correct: false },
+      { text: "All of the above", correct: true }
+    ]
+  },
+
+  // ---- Q6 — Work at Risk Implementation (TF) — Slide 16–17, Policy §3.1, §5.1 ----
+  {
+    id: 6,
+    type: "tf",
+    text: "True or False: A process change can be implemented without a signed PCR as long as it has documented approval from the PE/DPE and is logged under Work at Risk.",
+    correct: true
+  },
+
+  // ---- Q7 — Work at Risk Examples (MC) — Slide 6, Policy §3.1 ----
+  {
+    id: 7,
+    type: "mc",
+    text: "Which of the following scenarios is an example of \"Work at Risk\"?",
+    choices: [
+      { text: "Changing a hyperlink in a team training deck", correct: false },
+      { text: "Hiring employees and commencing onboarding before an approved contract or signed PCR is in place", correct: true },
+      { text: "Generating an annual snapshot report from the MDC Percolator", correct: false },
+      { text: "Updating the QMS Chatbot with new FAQ responses", correct: false }
+    ]
+  },
+
+  // ---- Q8 — KCO Standard (FITB) — Slide 39, Policy §1.2, §7.2 ----
+  {
+    id: 8,
+    type: "fitb",
+    text: "The Key Control Objective specifically governing Delivery Work Scope and Process Changes is KCO __________.",
+    blankLabel: "KCO Number (e.g., 716)",
+    acceptedAnswers: ["716", "kco 716", "kco716"],
+    reviewFlag: false
+  },
+
+  // ---- Q9 — Roles & Responsibilities: Logging (MC) — Policy §6 (Table 5) ----
+  {
+    id: 9,
+    type: "mc",
+    text: "Under the Change Management Policy, who is primarily responsible for logging change requests into the MDC Percolator tool and routing them for approval?",
+    choices: [
+      { text: "Client Services Manager / Operations Manager", correct: false },
+      { text: "GEO DPL / Cluster Leader", correct: false },
+      { text: "Process Owner / Delivery Manager / Team Lead / Operations Lead", correct: true },
+      { text: "Business Controls Focal", correct: false }
+    ]
+  },
+
+  // ---- Q10 — Minor Changes Logging (TF) — Slide 7, Policy §3.2 ----
+  {
+    id: 10,
+    type: "tf",
+    text: "True or False: Minor changes, such as correcting typographical errors in a DTP or handling one-time ad-hoc requests, must be logged and approved in the MDC Percolator tool.",
+    correct: false
+  },
+
+  // ---- Q11 — Workflow: Final Closure (MC) — Slide 35–36, Policy §5.1 ----
+  {
+    id: 11,
+    type: "mc",
+    text: "After all required approvers have provided their approval for a fully implemented change entry in MDC Percolator, what final action must the Author take to close out the entry?",
+    choices: [
+      { text: "Delete the entry from the narratives section", correct: false },
+      { text: "Click \"Commit/Relocate\", tick \"Implemented\", and click \"Relocate to Section\"", correct: true },
+      { text: "Send a speedlink notification to IBM Legal", correct: false },
+      { text: "Submit a ticket in Cobee Lite under the obsoletion tab", correct: false }
+    ]
+  },
+
+  // ---- Q12 — Policy Repository (FITB) — Policy §1.5, Table 1 ----
+  {
+    id: 12,
+    type: "fitb",
+    text: "The official, controlled version of the Change Management Policy and Requirements document is stored in the __________ tool.",
+    blankLabel: "Tool Name (e.g., Cobee Lite)",
+    acceptedAnswers: ["cobee lite", "cobeelite", "cobee"],
+    reviewFlag: false
+  },
+
+  // ---- Q13 — Scenario: Scope Creep vs. Work at Risk (SC) — Slide 6, 16–17, 24, Policy §3.1, §5.1 ----
+  {
+    id: 13,
+    type: "mc",
+    text: "SCENARIO: A client requests an account team to immediately take over two additional accounting sub-processes not covered in the original Statement of Work (SOW). The formal PCR will take four weeks to be signed by the client's procurement team. How should the team handle this request compliant with policy?",
+    choices: [
+      { text: "Refuse the request and perform no action until the formal contract amendment is fully signed by the client.", correct: false },
+      { text: "Execute the tasks immediately upon client verbal request without logging anything since the client promised to pay later.", correct: false },
+      { text: "Obtain documented approval from the PE/DPE, log the entry under \"Work at Risk\" in the MDC Percolator with required approvals, and pursue the signed PCR.", correct: true },
+      { text: "Treat it as a minor ad-hoc request and log it in the team's internal Excel tracker without notifying leadership.", correct: false }
+    ]
+  },
+
+  // ---- Q14 — Scenario: Automation Implementation Requirements (SC) — Slide 26, 39, Policy §5.1 (Table 4), §7.2 ----
+  {
+    id: 14,
+    type: "mc",
+    text: "SCENARIO: A team lead developed a robotic process automation (RPA) bot that automates a daily transactional process. Before implementing this change in production delivery, what key prerequisites and documentation must be validated per KCO 716 and the Implementation phase?",
+    choices: [
+      { text: "Only an email approval from the immediate shift supervisor is required.", correct: false },
+      { text: "Validate updated Delivery Process Documentation (DTP), updated Separation of Duties (SOD), Inter-company Agreements (ICAs/SLAs), and ERO/GDPR assessments prior to implementation.", correct: true },
+      { text: "No documentation is required if the automation improves processing speed by more than 50%.", correct: false },
+      { text: "Wait until year-end audit testing before logging the automation in the MDC Percolator.", correct: false }
+    ]
+  },
+
+  // ---- Q15 — Scenario: Annual Zero-Change Demonstration (SC) — Slide 39, Policy §7.2 (Attribute 716h) ----
+  {
+    id: 15,
+    type: "mc",
+    text: "SCENARIO: During the entire calendar year, an account had zero work scope or process changes executed. According to KCO 716 attribute 716h, what requirement must be satisfied at year-end?",
+    choices: [
+      { text: "The account is automatically marked non-compliant and receives a control deficiency.", correct: false },
+      { text: "The tester / team must enter 1 sample at year-end with no defect that demonstrates no work scope and process changes occurred.", correct: true },
+      { text: "The account lead must create a fictitious change entry in MDC Percolator to pass the audit.", correct: false },
+      { text: "The account must submit a waiver request to IBM Corporate Legal.", correct: false }
+    ]
+  }
+
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let learnerName = "";
+let activeQuestions = [];   // 10 selected from pool
+let userAnswers = {};       // { qId: { display, correct } }
+
+// ============================================================
+// UTILS
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function sampleN(arr, n) {
+  return shuffle(arr).slice(0, n);
+}
+
+// ============================================================
+// START
+// ============================================================
+function startAssessment() {
+  const nameInput = document.getElementById("learner-name");
+  const errEl = document.getElementById("name-error");
+  if (!nameInput.value.trim()) {
+    errEl.style.display = "block";
+    nameInput.focus();
+    return;
+  }
+  errEl.style.display = "none";
+  learnerName = nameInput.value.trim();
+  userAnswers = {};
+  activeQuestions = sampleN(POOL, 10);
+  renderQuiz();
+  show("screen-quiz");
+  hide("screen-start");
+}
+
+// ============================================================
+// RENDER QUIZ
+// ============================================================
+function renderQuiz() {
+  const meta = document.getElementById("quiz-meta");
+  meta.textContent = `Learner: ${learnerName}  ·  10 questions  ·  Passing score: 9/10 (85%)`;
+  updateProgress(0);
+
+  const container = document.getElementById("questions-container");
+  container.innerHTML = "";
+
+  activeQuestions.forEach((q, idx) => {
+    const block = document.createElement("div");
+    block.className = "question-block";
+    block.id = `qblock-${q.id}`;
+
+    const numDiv = document.createElement("div");
+    numDiv.className = "question-num";
+    numDiv.textContent = `Question ${idx + 1} of 10`;
+    block.appendChild(numDiv);
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "question-text";
+    textDiv.textContent = q.text;
+    block.appendChild(textDiv);
+
+    if (q.type === "mc") {
+      const shuffledChoices = shuffle(q.choices);
+      const choicesDiv = document.createElement("div");
+      choicesDiv.className = "choices";
+      shuffledChoices.forEach((choice) => {
+        const label = document.createElement("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q_${q.id}`;
+        radio.value = choice.text;
+        radio.addEventListener("change", () => {
+          userAnswers[q.id] = { display: choice.text, correct: choice.correct };
+          updateProgress(Object.keys(userAnswers).length);
+        });
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + choice.text));
+        choicesDiv.appendChild(label);
+      });
+      block.appendChild(choicesDiv);
+
+    } else if (q.type === "tf") {
+      const choicesDiv = document.createElement("div");
+      choicesDiv.className = "choices";
+      ["True", "False"].forEach(opt => {
+        const label = document.createElement("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q_${q.id}`;
+        radio.value = opt;
+        radio.addEventListener("change", () => {
+          const isCorrect = (opt === "True") === q.correct;
+          userAnswers[q.id] = { display: opt, correct: isCorrect };
+          updateProgress(Object.keys(userAnswers).length);
+        });
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + opt));
+        choicesDiv.appendChild(label);
+      });
+      block.appendChild(choicesDiv);
+
+    } else if (q.type === "fitb") {
+      const inputEl = document.createElement("input");
+      inputEl.type = "text";
+      inputEl.className = "fitb-input";
+      inputEl.placeholder = q.blankLabel || "Your answer";
+      inputEl.addEventListener("input", () => {
+        const val = inputEl.value.trim();
+        const isCorrect = q.acceptedAnswers.some(a => a.toLowerCase() === val.toLowerCase());
+        userAnswers[q.id] = { display: val || "(no answer)", correct: isCorrect };
+        updateProgress(Object.keys(userAnswers).length);
+      });
+      block.appendChild(inputEl);
+    }
+
+    container.appendChild(block);
+  });
+}
+
+function updateProgress(answered) {
+  const pct = Math.round((answered / 10) * 100);
+  document.getElementById("progress-bar").style.width = pct + "%";
+}
+
+// ============================================================
+// SUBMIT
+// ============================================================
+function submitQuiz() {
+  // Check all answered
+  const unanswered = activeQuestions.filter(q => !userAnswers[q.id] || userAnswers[q.id].display === "(no answer)");
+  if (unanswered.length > 0) {
+    document.getElementById("unanswered-msg").style.display = "inline";
+    // Scroll to first unanswered
+    const firstBlock = document.getElementById(`qblock-${unanswered[0].id}`);
+    if (firstBlock) firstBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  document.getElementById("unanswered-msg").style.display = "none";
+
+  // Calculate score
+  let score = 0;
+  activeQuestions.forEach(q => {
+    if (userAnswers[q.id] && userAnswers[q.id].correct) score++;
+  });
+
+  renderResults(score);
+  show("screen-results");
+  hide("screen-quiz");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ============================================================
+// RENDER RESULTS (Security logic: never reveals correct answers)
+// ============================================================
+function renderResults(score) {
+  const passed = score >= 9;
+  const now = new Date();
+  const completionDate = now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const completionTime = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const bannerEl = document.getElementById("results-banner");
+  bannerEl.innerHTML = `
+    <p class="learner-name">Learner: <strong>${escHtml(learnerName)}</strong></p>
+    <p class="learner-name">Date of Completion: <strong>${completionDate} ${completionTime}</strong></p>
+    <div class="score-banner ${passed ? "passed" : "failed"}">
+      <span class="score-label">You scored ${score} out of 10</span>
+      <span class="score-badge">${passed ? "✓ PASSED" : "✗ FAILED"}</span>
+    </div>
+    <p style="font-size:13px;color:#57606a;">${passed
+      ? "Congratulations! You have met the passing threshold of 85%.<br><span style=\"font-style:italic;\">You may keep a screenshot of this results page as your artifact of completion.</span>"
+      : "You did not reach the 85% passing threshold (9/10). Please review the training materials and retake the assessment."
+    }</p>
+  `;
+
+  const rqEl = document.getElementById("results-questions");
+  rqEl.innerHTML = "";
+  activeQuestions.forEach((q, idx) => {
+    const ans = userAnswers[q.id];
+    const displayAns = ans ? ans.display : "(no answer)";
+    const isCorrect = ans && ans.correct;
+
+    const item = document.createElement("div");
+    item.className = "result-item" + (isCorrect ? "" : " incorrect");
+    item.innerHTML = `
+      <div class="result-q-num">Question ${idx + 1}${isCorrect ? "" : ' <span class="wrong-tag">✗ Incorrect</span>'}</div>
+      <div class="result-q-text">${escHtml(q.text)}</div>
+      <div class="result-answer-label">Your answer:</div>
+      <span class="result-answer">${escHtml(displayAns)}</span>
+    `;
+    rqEl.appendChild(item);
+  });
+}
+
+// ============================================================
+// RETAKE
+// ============================================================
+function retake() {
+  userAnswers = {};
+  activeQuestions = sampleN(POOL, 10);
+  renderQuiz();
+  show("screen-quiz");
+  hide("screen-results");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function show(id) { document.getElementById(id).style.display = "block"; }
+function hide(id) { document.getElementById(id).style.display = "none"; }
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+</script>
+</body>
+</html>

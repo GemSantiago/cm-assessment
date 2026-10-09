@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Records Management Assessment — IBM Consulting FutureNow</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    background: #f4f4f4;
+    color: #1f2328;
+    min-height: 100vh;
+  }
+  .wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  /* Header */
+  .header {
+    background: #001141;
+    color: #fff;
+    padding: 28px 32px 22px;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: 0;
+  }
+  .header h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.3px; }
+  .header p  { font-size: 13px; color: #a6c8ff; margin-top: 4px; }
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 32px;
+  }
+
+  /* Start screen */
+  #screen-start .intro-text { color: #57606a; margin-bottom: 24px; font-size: 14px; }
+  .field-label { font-weight: 600; font-size: 13px; margin-bottom: 6px; display: block; }
+  .text-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #c9d1d9;
+    border-radius: 4px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #1f2328;
+    transition: border-color 0.15s;
+  }
+  .text-input:focus { outline: none; border-color: #3b82d4; }
+  .btn {
+    display: inline-block;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-primary { background: #0f62fe; color: #fff; }
+  .btn-primary:hover { background: #0353e9; }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-secondary { background: #e5e7eb; color: #1f2328; }
+  .btn-secondary:hover { background: #d0d7de; }
+  .btn-retake { background: #001141; color: #fff; margin-top: 24px; }
+  .btn-retake:hover { background: #0f2d6e; }
+  .mt-20 { margin-top: 20px; }
+  .error-msg { color: #da1e28; font-size: 13px; margin-top: 6px; display: none; }
+
+  /* Quiz screen */
+  .quiz-meta { font-size: 13px; color: #57606a; margin-bottom: 20px; }
+  .progress-bar-wrap { background: #e5e7eb; border-radius: 4px; height: 6px; margin-bottom: 28px; }
+  .progress-bar-fill { background: #0f62fe; height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .question-block { margin-bottom: 30px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px 22px; background: #fafafa; }
+  .question-num { font-size: 11px; font-weight: 700; color: #57606a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .question-text { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #1f2328; }
+  .choices label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .choices label:hover { border-color: #0f62fe; background: #f0f6ff; }
+  .choices input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: #0f62fe; }
+  .fitb-input {
+    width: 100%;
+    max-width: 420px;
+    padding: 9px 12px;
+    border: 1.5px solid #c9d1d9;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1f2328;
+  }
+  .fitb-input:focus { outline: none; border-color: #3b82d4; }
+  .submit-row { margin-top: 10px; }
+  .unanswered-msg { color: #da1e28; font-size: 13px; margin-left: 14px; display: none; }
+
+  /* Results screen */
+  .score-banner {
+    padding: 22px 24px;
+    border-radius: 6px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .score-banner.passed { background: #defbe6; border: 1.5px solid #24a148; }
+  .score-banner.failed { background: #fff1f1; border: 1.5px solid #da1e28; }
+  .score-label { font-size: 22px; font-weight: 700; }
+  .score-banner.passed .score-label { color: #0e6027; }
+  .score-banner.failed .score-label { color: #a2191f; }
+  .score-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .score-banner.passed .score-badge { background: #24a148; color: #fff; }
+  .score-banner.failed .score-badge { background: #da1e28; color: #fff; }
+  .learner-name { font-size: 14px; color: #57606a; margin-bottom: 4px; }
+
+  .result-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    background: #fafafa;
+  }
+  .result-item.incorrect {
+    border-color: #da1e28;
+    background: #fff8f8;
+  }
+  .result-q-num { font-size: 11px; font-weight: 700; color: #57606a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .result-q-num .wrong-tag {
+    display: inline-block;
+    margin-left: 8px;
+    background: #da1e28;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.4px;
+    vertical-align: middle;
+  }
+  .result-q-text { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .result-answer { font-size: 13px; color: #1f2328; background: #f0f6ff; border: 1px solid #d0e2ff; padding: 7px 12px; border-radius: 4px; display: inline-block; }
+  .result-item.incorrect .result-answer { background: #fff1f1; border-color: #ffb3b8; color: #a2191f; }
+  .result-answer-label { font-size: 12px; color: #57606a; margin-bottom: 4px; }
+  .divider { height: 1px; background: #e5e7eb; margin: 28px 0; }
+
+  footer { text-align: center; font-size: 12px; color: #57606a; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>Records Management Assessment</h1>
+    <p>IBM Consulting FutureNow Center Philippines &nbsp;·&nbsp; Quality Management System Team</p>
+  </div>
+  <div class="card">
+
+    <!-- ===== SCREEN: START ===== -->
+    <div id="screen-start">
+      <p class="intro-text">
+        This assessment covers the IBM Consulting FutureNow Center Philippines Records Management Policy and Process.
+        A score of <strong>9 out of 10 (85%)</strong> or higher is required to pass.
+        You may retake the assessment as many times as needed.
+      </p>
+      <label class="field-label" for="learner-name">Your Full Name</label>
+      <input class="text-input" type="text" id="learner-name" placeholder="Enter your full name" autocomplete="off">
+      <div class="error-msg" id="name-error">Please enter your name before starting.</div>
+      <div class="mt-20">
+        <button class="btn btn-primary" id="btn-start" onclick="startAssessment()">Start Assessment</button>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN: QUIZ ===== -->
+    <div id="screen-quiz" style="display:none;">
+      <div class="quiz-meta" id="quiz-meta"></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+      <form id="quiz-form">
+        <div id="questions-container"></div>
+      </form>
+      <div class="submit-row">
+        <button class="btn btn-primary" onclick="submitQuiz()">Submit Assessment</button>
+        <span class="unanswered-msg" id="unanswered-msg">Please answer all questions before submitting.</span>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN: RESULTS ===== -->
+    <div id="screen-results" style="display:none;">
+      <div id="results-banner"></div>
+      <div class="divider"></div>
+      <h2 style="font-size:16px;font-weight:700;margin-bottom:16px;">Your Answers</h2>
+      <div id="results-questions"></div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-retake" onclick="retake()">&#8635; Retake Assessment</button>
+      </div>
+    </div>
+
+  </div><!-- .card -->
+  <footer>Made with IBM Bob</footer>
+</div><!-- .wrapper -->
+
+<script>
+// ============================================================
+// QUESTION POOL — 15 questions grounded in source materials
+// Types: mc = multiple-choice, tf = true/false, fitb = fill-in-the-blank, sc = scenario/situational
+// ============================================================
+const POOL = [
+
+  // ---- Q1 — Roles & Responsibilities (MC) — Slide 21, Policy §4.1 ----
+  {
+    id: 1,
+    type: "mc",
+    text: "Which of the following is the role and responsibility of a Records Owner?",
+    choices: [
+      { text: "Assign the Records Custodian (SPOC) for the team", correct: false },
+      { text: "Provide review and approval of the Records Matrix", correct: false },
+      { text: "Identify all records to be retained", correct: false },
+      { text: "All of the above", correct: true }
+    ]
+  },
+
+  // ---- Q2 — Records Custodian (MC) — Slide 22, Policy §4.1 ----
+  {
+    id: 2,
+    type: "mc",
+    text: "The Records Custodian is primarily responsible for which of the following activities?",
+    choices: [
+      { text: "Approving the annual Records Matrix and disposal authorization", correct: false },
+      { text: "Organizing, labeling/indexing, storage, retrieval, and disposal of records", correct: true },
+      { text: "Communicating retention requirements to IBM Legal", correct: false },
+      { text: "Issuing Document Retention Orders (DROs)", correct: false }
+    ]
+  },
+
+  // ---- Q3 — Accurate Label (MC) — Slide 23 / Slide 9, Policy §5.2.D ----
+  {
+    id: 3,
+    type: "mc",
+    text: "A label is considered accurate if it contains which of the following basic information?",
+    choices: [
+      { text: "Record code, Filename, Computed end of retention periods, Data Classification", correct: false },
+      { text: "Record code, Filename, Coverage date, Computed end of retention periods, Data Classification", correct: true },
+      { text: "Filename, Coverage date, Data Classification, Author", correct: false },
+      { text: "Record code, Filename, Coverage date, Author, Data Classification", correct: false }
+    ]
+  },
+
+  // ---- Q4 — Retention Code S+01 (MC) — Slide 24, Policy §3.1 ----
+  {
+    id: 4,
+    type: "mc",
+    text: "What does the retention code S+01 mean?",
+    choices: [
+      { text: "Special classification; retain for 1 year", correct: false },
+      { text: "Suspend + 1 year after a Document Retention Order is lifted", correct: false },
+      { text: "Superseded + 1 year; only the newest version is essential", correct: true },
+      { text: "Standard retention for 1 year from date of creation", correct: false }
+    ]
+  },
+
+  // ---- Q5 — Records Matrix review timing (TF) — Slide 25, Policy §5.3 ----
+  {
+    id: 5,
+    type: "tf",
+    text: "You should only review and update your Records Matrix once a year in March, and you cannot make any edits outside of that review period.",
+    correct: false
+  },
+
+  // ---- Q6 — Types of IBM Information (MC) — Policy §3.1 ----
+  {
+    id: 6,
+    type: "mc",
+    text: "Under IBM's information classification, which type of information 'has no defined retention period but must be retained only as long as necessary to satisfy business needs'?",
+    choices: [
+      { text: "Essential Information", correct: false },
+      { text: "Reference Information", correct: true },
+      { text: "Disposable Information", correct: false },
+      { text: "Confidential Information", correct: false }
+    ]
+  },
+
+  // ---- Q7 — DRO definition (MC) — Policy §3.3 ----
+  {
+    id: 7,
+    type: "mc",
+    text: "What is a Document Retention Order (DRO)?",
+    choices: [
+      { text: "An annual checklist for reviewing the Records Matrix in Cobee Lite", correct: false },
+      { text: "A notice from IBM Legal requiring certain information to be preserved and pausing normal WRM retention rules", correct: true },
+      { text: "A form used to request offsite archiving from the GRE Team", correct: false },
+      { text: "An IBM policy specifying disposal methods for electronic records", correct: false }
+    ]
+  },
+
+  // ---- Q8 — Offsite storage client-owned records (TF) — Policy §5.2.B ----
+  {
+    id: 8,
+    type: "tf",
+    text: "Client-owned records may be moved to offsite storage at the Department Manager's sole discretion, without any contractual agreement or written client approval.",
+    correct: false
+  },
+
+  // ---- Q9 — Records Matrix repository (MC) — Slide 19, Policy §5.3 ----
+  {
+    id: 9,
+    type: "mc",
+    text: "According to the 2026 training materials, where are the center's Records Matrices stored, and who manages this repository?",
+    choices: [
+      { text: "Cobee Lite, managed by the QMS Team", correct: false },
+      { text: "Digital Controls Center (monday.com board), managed by the Business Controls Team", correct: true },
+      { text: "IBM WRM portal, managed by the Records Code Owners", correct: false },
+      { text: "SharePoint, managed by the GRE Helpdesk", correct: false }
+    ]
+  },
+
+  // ---- Q10 — Annual review deadline (FITB) — Policy §5.3, §6.1 ----
+  {
+    id: 10,
+    type: "fitb",
+    text: "The annual review and approval of Records Matrices must be completed by __________ of each year.",
+    blankLabel: "Deadline (month and day)",
+    acceptedAnswers: ["march 31", "march 31st", "31 march", "31st of march"],
+    reviewFlag: false
+  },
+
+  // ---- Q11 — Retention determined by content (TF) — Policy §2.2 ----
+  {
+    id: 11,
+    type: "tf",
+    text: "According to the Records Management Policy, retention is determined by the content of the record, regardless of where it is created or stored.",
+    correct: true
+  },
+
+  // ---- Q12 — Disposal of confidential information (MC) — Policy §5.4.A ----
+  {
+    id: 12,
+    type: "mc",
+    text: "How must confidential information be disposed of under the Records Management Policy?",
+    choices: [
+      { text: "It may be placed in regular waste bins once it has passed its retention period", correct: false },
+      { text: "It must be disposed following IBM Security guidelines and local RESO rules (per Corporate Instruction LEG 116)", correct: true },
+      { text: "It should be forwarded to the GRE Team for shredding", correct: false },
+      { text: "It should be reviewed by the Records Owner and then deleted from Cobee Lite", correct: false }
+    ]
+  },
+
+  // ---- Q13 — Scenario: Offsite retrieval (SC) — Policy §5.2.B, Slide 13 ----
+  {
+    id: 13,
+    type: "mc",
+    text: "SCENARIO: A Records Custodian needs to retrieve a physical record that was archived offsite several months ago. What is the correct procedure?",
+    choices: [
+      { text: "Contact the archiving vendor directly to arrange pickup", correct: false },
+      { text: "Submit a retrieval request through the GRE Helpdesk, which will coordinate with the vendor", correct: true },
+      { text: "Raise a request in Cobee Lite under the obsoletion workflow", correct: false },
+      { text: "Ask the Department Manager to authorize a direct retrieval from the offsite facility", correct: false }
+    ]
+  },
+
+  // ---- Q14 — Scenario: Mislabelled records box (SC) — Policy §5.2.D, Slide 9 ----
+  {
+    id: 14,
+    type: "mc",
+    text: "SCENARIO: During a spot check, a Team Lead notices that several physical records boxes in the storage area do not have coverage dates or computed end-of-retention periods on their labels. What should the Records Custodian do?",
+    choices: [
+      { text: "Leave the boxes as-is; labels only need to be updated during the annual March review", correct: false },
+      { text: "Update the labels to include the required information: Record Code, Filename, Coverage Date, Computed End of Retention Period, and Data Classification", correct: true },
+      { text: "Transfer the boxes to offsite storage so the GRE Team can relabel them", correct: false },
+      { text: "Dispose of the unlabelled boxes immediately since they cannot be identified", correct: false }
+    ]
+  },
+
+  // ---- Q15 — Scenario: Finding record codes guidance (SC) — Slide 17, Policy §1.4 ----
+  {
+    id: 15,
+    type: "mc",
+    text: "SCENARIO: A team member cannot find the record code for a center-generated record that is not listed in the Records Matrix. Which resource should they visit to look up Essential information categories, record codes, and retention periods?",
+    choices: [
+      { text: "The IBM Integrated Operations Publisher page", correct: false },
+      { text: "The Worldwide Records Management (WRM) w3 page", correct: true },
+      { text: "The Cobee Lite QMS Publisher page", correct: false },
+      { text: "The Digital Controls Center (monday.com board)", correct: false }
+    ]
+  }
+
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let learnerName = "";
+let activeQuestions = [];   // 10 selected from pool
+let userAnswers = {};       // { qId: answerValue }
+
+// ============================================================
+// UTILS
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function sampleN(arr, n) {
+  return shuffle(arr).slice(0, n);
+}
+
+// ============================================================
+// START
+// ============================================================
+function startAssessment() {
+  const nameInput = document.getElementById("learner-name");
+  const errEl = document.getElementById("name-error");
+  if (!nameInput.value.trim()) {
+    errEl.style.display = "block";
+    nameInput.focus();
+    return;
+  }
+  errEl.style.display = "none";
+  learnerName = nameInput.value.trim();
+  userAnswers = {};
+  activeQuestions = sampleN(POOL, 10);
+  renderQuiz();
+  show("screen-quiz");
+  hide("screen-start");
+}
+
+// ============================================================
+// RENDER QUIZ
+// ============================================================
+function renderQuiz() {
+  const meta = document.getElementById("quiz-meta");
+  meta.textContent = `Learner: ${learnerName}  ·  10 questions  ·  Passing score: 9/10 (85%)`;
+  updateProgress(0);
+
+  const container = document.getElementById("questions-container");
+  container.innerHTML = "";
+
+  activeQuestions.forEach((q, idx) => {
+    const block = document.createElement("div");
+    block.className = "question-block";
+    block.id = `qblock-${q.id}`;
+
+    const numDiv = document.createElement("div");
+    numDiv.className = "question-num";
+    numDiv.textContent = `Question ${idx + 1} of 10`;
+    block.appendChild(numDiv);
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "question-text";
+    textDiv.textContent = q.text;
+    block.appendChild(textDiv);
+
+    if (q.type === "mc") {
+      const shuffledChoices = shuffle(q.choices);
+      const choicesDiv = document.createElement("div");
+      choicesDiv.className = "choices";
+      shuffledChoices.forEach((choice, ci) => {
+        const label = document.createElement("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q_${q.id}`;
+        radio.value = choice.text;
+        radio.addEventListener("change", () => {
+          userAnswers[q.id] = { display: choice.text, correct: choice.correct };
+          updateProgress(Object.keys(userAnswers).length);
+        });
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + choice.text));
+        choicesDiv.appendChild(label);
+      });
+      block.appendChild(choicesDiv);
+
+    } else if (q.type === "tf") {
+      const choicesDiv = document.createElement("div");
+      choicesDiv.className = "choices";
+      ["True", "False"].forEach(opt => {
+        const label = document.createElement("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q_${q.id}`;
+        radio.value = opt;
+        radio.addEventListener("change", () => {
+          const isCorrect = (opt === "True") === q.correct;
+          userAnswers[q.id] = { display: opt, correct: isCorrect };
+          updateProgress(Object.keys(userAnswers).length);
+        });
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + opt));
+        choicesDiv.appendChild(label);
+      });
+      block.appendChild(choicesDiv);
+
+    } else if (q.type === "fitb") {
+      const inputEl = document.createElement("input");
+      inputEl.type = "text";
+      inputEl.className = "fitb-input";
+      inputEl.placeholder = q.blankLabel || "Your answer";
+      inputEl.addEventListener("input", () => {
+        const val = inputEl.value.trim();
+        const isCorrect = q.acceptedAnswers.some(a => a.toLowerCase() === val.toLowerCase());
+        userAnswers[q.id] = { display: val || "(no answer)", correct: isCorrect };
+        updateProgress(Object.keys(userAnswers).length);
+      });
+      block.appendChild(inputEl);
+    }
+
+    container.appendChild(block);
+  });
+}
+
+function updateProgress(answered) {
+  const pct = Math.round((answered / 10) * 100);
+  document.getElementById("progress-bar").style.width = pct + "%";
+}
+
+// ============================================================
+// SUBMIT
+// ============================================================
+function submitQuiz() {
+  // Check all answered
+  const unanswered = activeQuestions.filter(q => !userAnswers[q.id] || userAnswers[q.id].display === "(no answer)");
+  if (unanswered.length > 0) {
+    document.getElementById("unanswered-msg").style.display = "inline";
+    // Scroll to first unanswered
+    const firstBlock = document.getElementById(`qblock-${unanswered[0].id}`);
+    if (firstBlock) firstBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  document.getElementById("unanswered-msg").style.display = "none";
+
+  // Calculate score
+  let score = 0;
+  activeQuestions.forEach(q => {
+    if (userAnswers[q.id] && userAnswers[q.id].correct) score++;
+  });
+
+  renderResults(score);
+  show("screen-results");
+  hide("screen-quiz");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function renderResults(score) {
+  const passed = score >= 9;
+  const now = new Date();
+  const completionDate = now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const completionTime = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const bannerEl = document.getElementById("results-banner");
+  bannerEl.innerHTML = `
+    <p class="learner-name">Learner: <strong>${escHtml(learnerName)}</strong></p>
+    <p class="learner-name">Date of Completion: <strong>${completionDate} ${completionTime}</strong></p>
+    <div class="score-banner ${passed ? "passed" : "failed"}">
+      <span class="score-label">You scored ${score} out of 10</span>
+      <span class="score-badge">${passed ? "✓ PASSED" : "✗ FAILED"}</span>
+    </div>
+    <p style="font-size:13px;color:#57606a;">${passed
+      ? "Congratulations! You have met the passing threshold of 85%.<br><span style=\"font-style:italic;\">You may keep a screenshot of this results page as your artifact of completion.</span>"
+      : "You did not reach the 85% passing threshold (9/10). Please review the training materials and retake the assessment."
+    }</p>
+  `;
+
+  const rqEl = document.getElementById("results-questions");
+  rqEl.innerHTML = "";
+  activeQuestions.forEach((q, idx) => {
+    const ans = userAnswers[q.id];
+    const displayAns = ans ? ans.display : "(no answer)";
+    const isCorrect = ans && ans.correct;
+
+    const item = document.createElement("div");
+    item.className = "result-item" + (isCorrect ? "" : " incorrect");
+    item.innerHTML = `
+      <div class="result-q-num">Question ${idx + 1}${isCorrect ? "" : ' <span class="wrong-tag">✗ Incorrect</span>'}</div>
+      <div class="result-q-text">${escHtml(q.text)}</div>
+      <div class="result-answer-label">Your answer:</div>
+      <span class="result-answer">${escHtml(displayAns)}</span>
+    `;
+    rqEl.appendChild(item);
+  });
+}
+
+// ============================================================
+// RETAKE
+// ============================================================
+function retake() {
+  userAnswers = {};
+  activeQuestions = sampleN(POOL, 10);
+  renderQuiz();
+  show("screen-quiz");
+  hide("screen-results");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function show(id) { document.getElementById(id).style.display = "block"; }
+function hide(id) { document.getElementById(id).style.display = "none"; }
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+</script>
+</body>
+</html>
